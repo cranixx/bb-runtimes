@@ -320,6 +320,8 @@ class Stm32(CortexMTarget):
             return 'cortex-m4'
         elif self.mcu.startswith('stm32f7'):
             return 'cortex-m7'
+        elif self.mcu.startswith('stm32f1'):
+            return 'cortex-m3'
         else:
             assert False, "Unexpected MCU %s" % self.mcu
 
@@ -327,6 +329,8 @@ class Stm32(CortexMTarget):
     def fpu(self):
         if self.cortex == 'cortex-m4':
             return 'fpv4-sp-d16'
+        elif self.cortex == 'cortex-m3':
+            return ''
         elif not self.has_double_precision_fpu:
             return 'fpv5-sp-d16'
         else:
@@ -335,7 +339,12 @@ class Stm32(CortexMTarget):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return ('-mlittle-endian', '-mhard-float',
+        if self.cortex == 'cortex-m3':
+            return ('-mlittle-endian',
+                '-mcpu=%s' % self.cortex,
+                '-mthumb')
+        else:
+            return ('-mlittle-endian', '-mhard-float',
                 '-mcpu=%s' % self.cortex,
                 '-mfpu=%s' % self.fpu,
                 '-mthumb')
@@ -354,6 +363,8 @@ class Stm32(CortexMTarget):
             self.mcu = 'stm32f7x'
         elif self.board == 'stm32f769disco':
             self.mcu = 'stm32f7x9'
+        elif self.board == 'stm32f103':
+            self.mcu = 'stm32f103'
         else:
             assert False, "Unknown stm32 board: %s" % self.board
 
@@ -394,6 +405,10 @@ class Stm32(CortexMTarget):
         elif self.board == 'stm32f769disco':
             self.add_sources('crt0', [
                 'src/s-stm32__f7x.adb'])
+        elif self.board == 'stm32f103':
+            self.add_sources('crt0', [
+                'src/s-stm32__f103.adb'])
+
 
         # ravenscar support
         self.add_sources('gnarl', [
