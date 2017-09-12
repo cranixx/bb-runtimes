@@ -51,7 +51,7 @@ package System.BB.Board_Parameters is
    --  Frequency of High Speed External clock.
 
    FLASH_Latency : constant := 5;
-   PLLP_Value    : constant := 2;
-   PLLQ_Value    : constant := 7;
+--   PLLP_Value    : constant := 2;
+--  PLLQ_Value    : constant := 7;
 
 end System.BB.Board_Parameters;

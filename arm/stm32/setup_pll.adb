@@ -39,7 +39,7 @@ with Interfaces.STM32.PWR;       use Interfaces.STM32.PWR;
 with Interfaces.STM32.RCC;       use Interfaces.STM32.RCC;
 
 with System.BB.Parameters;       use System.BB.Parameters;
-with System.BB.MCU_Parameters;
+--  with System.BB.MCU_Parameters;
 with System.BB.Board_Parameters; use System.BB.Board_Parameters;
 with System.STM32;               use System.STM32;
 
@@ -51,16 +51,16 @@ procedure Setup_Pll is
    -- Clock Tree Configuration --
    ------------------------------
 
-   HSE_Enabled     : constant Boolean := True;  -- use high-speed ext. clock
+   HSE_Enabled     : constant Boolean := False;  -- use high-speed ext. clock
    HSE_Bypass      : constant Boolean := False; -- don't bypass ext. resonator
    LSI_Enabled     : constant Boolean := True;  -- use low-speed internal clock
 
    Activate_PLL       : constant Boolean := True;
-   Activate_Overdrive : constant Boolean := True;
+   --  Activate_Overdrive : constant Boolean := True;
    Activate_PLLI2S    : constant Boolean := False;
 
-   pragma Compile_Time_Error (not (if Activate_PLL then HSE_Enabled),
-                              "PLL only supported with external clock");
+   --  pragma Compile_Time_Error (not (if Activate_PLL then HSE_Enabled),
+   --                           "PLL only supported with external clock");
 
    pragma Compile_Time_Error (Activate_PLLI2S, "not yet implemented");
 
@@ -74,29 +74,29 @@ procedure Setup_Pll is
       -- Compute Clock Frequencies --
       -------------------------------
 
-      PLLCLKIN    : constant Integer := 1_000_000;
-      PLLM_Value  : constant Integer  := HSE_Clock / PLLCLKIN;
+      --  PLLCLKIN    : constant Integer := 1_000_000;
+      --  PLLM_Value  : constant Integer  := HSE_Clock / PLLCLKIN;
       --  First divider M is set to produce a 1Mhz clock
 
-      PLLN_Value  : constant Integer :=
-                      (PLLP_Value * Clock_Frequency) / PLLCLKIN;
+      --  PLLN_Value  : constant Integer :=
+      --                (PLLP_Value * Clock_Frequency) / PLLCLKIN;
       --  Compute N to to generate the required frequency
 
-      PLLVC0      : constant Integer := PLLCLKIN * PLLN_Value;
-      PLLCLKOUT   : constant Integer := PLLVC0 / PLLP_Value;
+      --  PLLVC0      : constant Integer := PLLCLKIN * PLLN_Value;
+      --  PLLCLKOUT   : constant Integer := PLLVC0 / PLLP_Value;
 
-      pragma Compile_Time_Error
-        (PLLP_Value not in PLLP_Range,
-         "Invalid PLLP clock configuration value");
-      pragma Compile_Time_Error
-        (PLLQ_Value not in PLLQ_Range,
-         "Invalid PLLQ clock configuration value");
+     --  pragma Compile_Time_Error
+     --   (PLLP_Value not in PLLP_Range,
+     --    "Invalid PLLP clock configuration value");
+     --  pragma Compile_Time_Error
+     --   (PLLQ_Value not in PLLQ_Range,
+     --    "Invalid PLLQ clock configuration value");
 
-      PLLM        : constant UInt6 := UInt6 (PLLM_Value);
-      PLLN        : constant UInt9 := UInt9 (PLLN_Value);
+      --  PLLM        : constant UInt6 := UInt6 (PLLM_Value);
+      --  PLLN        : constant UInt9 := UInt9 (PLLN_Value);
       --  PLLP and PLLQ are configured in System.BB.Board_Parameters
-      PLLP        : constant UInt2 := UInt2 (PLLP_Value / 2 - 1);
-      PLLQ        : constant UInt4 := UInt4 (PLLQ_Value);
+      --  PLLP        : constant UInt2 := UInt2 (PLLP_Value / 2 - 1);
+      --  PLLQ        : constant UInt4 := UInt4 (PLLQ_Value);
 
       SW          : constant SYSCLK_Source :=
                       (if Activate_PLL then SYSCLK_SRC_PLL
@@ -105,9 +105,7 @@ procedure Setup_Pll is
       SW_Value    : constant CFGR_SW_Field :=
                       SYSCLK_Source'Enum_Rep (SW);
 
-      SYSCLK      : constant Integer := (if Activate_PLL
-                                         then PLLCLKOUT
-                                         else HSICLK);
+      SYSCLK      : constant Integer := HSICLK;
 
       HCLK        : constant Integer :=
                       (if not AHB_PRE.Enabled
@@ -149,13 +147,13 @@ procedure Setup_Pll is
    begin
 
       --  Check configuration
-      pragma Compile_Time_Error
-        (PLLVC0 not in PLLVC0_Range or else PLLCLKOUT not in PLLOUT_Range,
-           "Invalid clock configuration");
+      --  pragma Compile_Time_Error
+      --  (PLLVC0 not in PLLVC0_Range or else PLLCLKOUT not in PLLOUT_Range,
+      --     "Invalid clock configuration");
 
-      pragma Compile_Time_Error
-        (SYSCLK /= Clock_Frequency,
-           "Cannot generate requested clock");
+     --  pragma Compile_Time_Error
+     --   (SYSCLK /= Clock_Frequency,
+     --      "Cannot generate requested clock");
 
       pragma Compile_Time_Error
         (HCLK not in HCLK_Range
@@ -177,7 +175,7 @@ procedure Setup_Pll is
       --  to obtain the maximal operating frequency depending on the power
       --  scaling mode and the over-drive mode
 
-      System.BB.MCU_Parameters.PWR_Initialize;
+      --  System.BB.MCU_Parameters.PWR_Initialize;
 
       if not HSE_Enabled then
          --  Setup internal clock and wait for HSI stabilisation.
@@ -216,15 +214,15 @@ procedure Setup_Pll is
 
          --  Configure the PLL clock source, multiplication and division
          --  factors
-         RCC_Periph.PLLCFGR :=
-           (PLLM   => PLLM,
-            PLLN   => PLLN,
-            PLLP   => PLLP,
-            PLLQ   => PLLQ,
-            PLLSRC => (if HSE_Enabled
-                       then PLL_Source'Enum_Rep (PLL_SRC_HSE)
-                       else PLL_Source'Enum_Rep (PLL_SRC_HSI)),
-            others => <>);
+         --  RCC_Periph.PLLCFGR :=
+         --  (PLLM   => PLLM,
+         --   PLLN   => PLLN,
+         --   PLLP   => PLLP,
+         --   PLLQ   => PLLQ,
+         --   PLLSRC => (if HSE_Enabled
+         --              then PLL_Source'Enum_Rep (PLL_SRC_HSE)
+         --              else PLL_Source'Enum_Rep (PLL_SRC_HSI)),
+         --   others => <>);
 
          RCC_Periph.CR.PLLON := 1;
          loop
@@ -233,23 +231,23 @@ procedure Setup_Pll is
       end if;
 
       --  Configure OverDrive mode
-      if Activate_Overdrive then
-         System.BB.MCU_Parameters.PWR_Overdrive_Enable;
-      end if;
+      --  if Activate_Overdrive then
+      --   System.BB.MCU_Parameters.PWR_Overdrive_Enable;
+      --  end if;
 
       --  Configure flash
       --  Must be done before increasing the frequency, otherwise the CPU
       --  won't be able to fetch new instructions.
 
-      FLASH_Periph.ACR.ICEN := 0;
-      FLASH_Periph.ACR.DCEN := 0;
-      FLASH_Periph.ACR.ICRST := 1;
-      FLASH_Periph.ACR.DCRST := 1;
+      --  FLASH_Periph.ACR.ICEN := 0;
+      --  FLASH_Periph.ACR.DCEN := 0;
+      --  FLASH_Periph.ACR.ICRST := 1;
+      --  FLASH_Periph.ACR.DCRST := 1;
       FLASH_Periph.ACR :=
         (LATENCY => FLASH_Latency,
-         ICEN    => 1,
-         DCEN    => 1,
-         PRFTEN  => 1,
+         --  ICEN    => 1,
+         --  DCEN    => 1,
+         --  PRFTEN  => 1,
          others  => <>);
 
       --  Configure derived clocks
@@ -260,12 +258,12 @@ procedure Setup_Pll is
          PPRE    => (As_Array => True,
                      Arr      => (1 => To_APB (APB1_PRE),
                                   2 => To_APB (APB2_PRE))),
-         RTCPRE  => 16#0#,
-         I2SSRC  => I2S_Clock_Selection'Enum_Rep (I2SSEL_PLL),
-         MCO1    => MC01_Clock_Selection'Enum_Rep (MC01SEL_HSI),
-         MCO1PRE => MC0x_Prescaler'Enum_Rep (MC0xPRE_DIV1),
-         MCO2    => MC02_Clock_Selection'Enum_Rep (MC02SEL_SYSCLK),
-         MCO2PRE => MC0x_Prescaler'Enum_Rep (MC0xPRE_DIV5),
+         --  RTCPRE  => 16#0#,
+         --  I2SSRC  => I2S_Clock_Selection'Enum_Rep (I2SSEL_PLL),
+         --  MCO1    => MC01_Clock_Selection'Enum_Rep (MC01SEL_HSI),
+         --  MCO1PRE => MC0x_Prescaler'Enum_Rep (MC0xPRE_DIV1),
+         --  MCO2    => MC02_Clock_Selection'Enum_Rep (MC02SEL_SYSCLK),
+         --  MCO2PRE => MC0x_Prescaler'Enum_Rep (MC0xPRE_DIV5),
          others  => <>);
 
       if Activate_PLL then
@@ -276,9 +274,9 @@ procedure Setup_Pll is
 
          --  Wait until voltage supply scaling has completed
 
-         loop
-            exit when System.BB.MCU_Parameters.Is_PWR_Stabilized;
-         end loop;
+         --  loop
+         --   exit when System.BB.MCU_Parameters.Is_PWR_Stabilized;
+         --  end loop;
       end if;
    end Initialize_Clocks;
 
@@ -300,7 +298,7 @@ procedure Setup_Pll is
       RCC_Periph.CR.PLLON := 0;
 
       --  Reset PLL configuration register
-      RCC_Periph.PLLCFGR := (others => <>);
+      --  RCC_Periph.PLLCFGR := (others => <>);
 
       --  Reset HSE bypass bit
       RCC_Periph.CR.HSEBYP := 0;

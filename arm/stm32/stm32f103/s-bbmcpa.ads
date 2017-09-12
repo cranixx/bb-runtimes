@@ -44,11 +44,4 @@ package System.BB.MCU_Parameters is
 
    Number_Of_Interrupts : constant := 81;
 
-   procedure PWR_Initialize;
-
-   procedure PWR_Overdrive_Enable;
-
-   function Is_PWR_Stabilized return Boolean
-     is (Interfaces.STM32.PWR.PWR_Periph.CSR.VOSRDY = 1);
-
 end System.BB.MCU_Parameters;

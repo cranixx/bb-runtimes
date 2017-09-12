@@ -376,7 +376,7 @@ class Stm32(CortexMTarget):
         self.add_sources('crt0', [
             'arm/stm32/%s/s-bbbopa.ads' % self.mcu,
             'arm/stm32/%s/s-bbmcpa.ads' % self.mcu,
-            'arm/stm32/%s/s-bbmcpa.adb' % self.mcu,
+            #'arm/stm32/%s/s-bbmcpa.adb' % self.mcu,
             'arm/stm32/%s/svd/i-stm32.ads' % self.mcu,
             'arm/stm32/%s/svd/i-stm32-flash.ads' % self.mcu,
             'arm/stm32/%s/svd/i-stm32-gpio.ads' % self.mcu,
