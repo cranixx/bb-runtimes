@@ -1,0 +1,3 @@
+pragma Partition_Elaboration_Policy (Sequential);
+pragma Restrictions (No_Task_Hierarchy);
+
